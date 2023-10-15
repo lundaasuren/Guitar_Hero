@@ -100,7 +100,7 @@ void start_screen(void)
 	printf_P(PSTR(" \\$$   \\$$     \\$     \\$$   \\$$       \\$$   \\$$  \\$$$$$$$ \\$$        \\$$$$$$"));
 	move_terminal_cursor(10,14);
 	// change this to your name and student number; remove the chevrons <>
-	printf_P(PSTR("CSSE2010/7201 A2 by <YOUR NAME> - <YOUR STUDENT NUMBER>"));
+	printf_P(PSTR("CSSE2010/7201 A2 by LUNDAASUREN MUNKHBAT - 47668599"));
 	
 	// Output the static start screen and wait for a push button 
 	// to be pushed or a serial input of 's'
