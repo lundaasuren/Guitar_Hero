@@ -13,6 +13,7 @@
 #include "display.h"
 #include "ledmatrix.h"
 #include "terminalio.h"
+#include <stdbool.h>
 
 static const uint8_t track[TRACK_LENGTH] = {0x00,
 	0x00, 0x00, 0x08, 0x08, 0x08, 0x80, 0x04, 0x02,
@@ -31,6 +32,8 @@ static const uint8_t track[TRACK_LENGTH] = {0x00,
 	0x04, 0x40, 0x08, 0x04, 0x40, 0x40, 0x02, 0x20,
 	0x04, 0x40, 0x08, 0x04, 0x40, 0x40, 0x02, 0x20,
 	0x01, 0x10, 0x10, 0x10, 0x00, 0x00, 0x00, 0x00};
+	
+static bool green_note[TRACK_LENGTH];
 
 uint16_t beat;
 
@@ -56,6 +59,68 @@ void play_note(uint8_t lane)
 	//    instead of COLOUR_RED for ledmatrix_update_pixel if required
 	// e) depending on your implementation, clear the variable in
 	//    advance_note when a note disappears from the screen
+	
+	for (uint8_t col=0; col<MATRIX_NUM_COLUMNS; col++)
+	{
+		// col counts from one end, future from the other
+		uint8_t future = MATRIX_NUM_COLUMNS-1-col;
+		// notes are only drawn every five columns
+		if ((future+beat)%5)
+		{
+			continue;
+		}
+		
+		// index of which note in the track to play
+		uint8_t index = (future+beat)/5;
+		// if the index is beyond the end of the track,
+		// no note can be drawn
+		if (index >= TRACK_LENGTH)
+		{
+			continue;
+		}
+
+// For keeping track of the score
+		//arr = [1, 2, 3, 2, 1]
+		//arr[col - 11]
+
+		// check if there's a note in the specific path
+		if (track[index] & (1<<lane))
+		{
+			// HANDLE COLUMN 11
+			// HANDLE COLUMN 12
+			// ...
+			if (col == 11)
+			{
+				green_note[index] = true;
+				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
+				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
+			}
+			else if (col == 12)
+			{
+				green_note[index] = true;
+				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
+				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
+			}
+			else if (col == 13)
+			{
+				green_note[index] = true;
+				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
+				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
+			}
+			else if (col == 14)
+			{
+				green_note[index] = true;
+				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
+				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
+			}
+			else if (col == 15)
+			{
+				green_note[index] = true;
+				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
+				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
+			}
+		}
+	}
 }
 
 // Advance the notes one row down the display
@@ -96,6 +161,7 @@ void advance_note(void)
 				{
 					colour = COLOUR_BLACK;
 				}
+				
 				ledmatrix_update_pixel(col, 2*lane, colour);
 				ledmatrix_update_pixel(col, 2*lane+1, colour);
 			}
@@ -130,9 +196,18 @@ void advance_note(void)
 			// check if there's a note in the specific path
 			if (track[index] & (1<<lane))
 			{
+				PixelColour colour;
+				if (green_note[index])
+				{
+					colour = COLOUR_GREEN;
+				}
+				else
+				{
+					colour = COLOUR_RED;
+				}
 				// if so, colour the two pixels red
-				ledmatrix_update_pixel(col, 2*lane, COLOUR_RED);
-				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_RED);
+				ledmatrix_update_pixel(col, 2*lane, colour);
+				ledmatrix_update_pixel(col, 2*lane+1, colour);
 			}
 		}
 	}

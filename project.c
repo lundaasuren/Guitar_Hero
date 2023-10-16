@@ -182,6 +182,21 @@ void play_game(void)
 		if (btn == BUTTON0_PUSHED)
 		{
 			// If button 0 play the lowest note (right lane)
+			play_note(3);
+		}
+		else if (btn == BUTTON1_PUSHED)
+		{
+			// If button 1 play the second lowest note (right lane)
+			play_note(2);
+		}
+		else if (btn == BUTTON2_PUSHED)
+		{
+			// If button 2 play the second lowest note (left lane)
+			play_note(1);
+		}
+		else if (btn == BUTTON3_PUSHED)
+		{
+			// If button 3 play the lowest note (left lane)
 			play_note(0);
 		}
 		
