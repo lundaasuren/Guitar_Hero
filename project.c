@@ -172,6 +172,11 @@ void play_game(void)
 	// We play the game until it's over
 	while (!is_game_over())
 	{
+		char serial_input = -1;
+		if (serial_input_available())
+		{
+			serial_input = fgetc(stdin);
+		}
 				
 		// We need to check if any button has been pushed, this will be
 		// NO_BUTTON_PUSHED if no button has been pushed
@@ -179,22 +184,22 @@ void play_game(void)
 		// in `buttons.c`.
 		btn = button_pushed();
 		
-		if (btn == BUTTON0_PUSHED)
+		if (btn == BUTTON0_PUSHED || (serial_input == 'f' || serial_input == 'F'))
 		{
 			// If button 0 play the lowest note (right lane)
 			play_note(3);
 		}
-		else if (btn == BUTTON1_PUSHED)
+		else if (btn == BUTTON1_PUSHED || (serial_input == 'd' || serial_input == 'D'))
 		{
 			// If button 1 play the second lowest note (right lane)
 			play_note(2);
 		}
-		else if (btn == BUTTON2_PUSHED)
+		else if (btn == BUTTON2_PUSHED || (serial_input == 's' || serial_input == 'S'))
 		{
 			// If button 2 play the second lowest note (left lane)
 			play_note(1);
 		}
-		else if (btn == BUTTON3_PUSHED)
+		else if (btn == BUTTON3_PUSHED || (serial_input == 'a' || serial_input == 'A'))
 		{
 			// If button 3 play the lowest note (left lane)
 			play_note(0);
