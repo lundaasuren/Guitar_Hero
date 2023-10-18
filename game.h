@@ -27,5 +27,7 @@ void advance_note(void);
 
 // Returns 1 if the game is over, 0 otherwise.
 uint8_t is_game_over(void);
+// Returns the index of next note
+uint8_t find_next_valid_note(uint8_t index);
 
 #endif

@@ -34,6 +34,7 @@ static const uint8_t track[TRACK_LENGTH] = {0x00,
 	0x01, 0x10, 0x10, 0x10, 0x00, 0x00, 0x00, 0x00};
 	
 static bool green_note[TRACK_LENGTH];
+//static bool ghost_note[TRACK_LENGTH];
 
 uint16_t beat;
 
@@ -86,9 +87,6 @@ void play_note(uint8_t lane)
 		// check if there's a note in the specific path
 		if (track[index] & (1<<lane))
 		{
-			// HANDLE COLUMN 11
-			// HANDLE COLUMN 12
-			// ...
 			if (col == 11)
 			{
 				green_note[index] = true;
@@ -171,6 +169,32 @@ void advance_note(void)
 	// increment the beat
 	beat++;
 	
+	// Ghost note implementation below:
+
+	// Clearing the top row
+	ledmatrix_update_column(-1, COLOUR_BLACK);
+	// index of which note in the track to play
+	uint8_t index = (MATRIX_NUM_COLUMNS+beat)/5;
+	// if the index is beyond the end of the track,
+	// no note can be drawn
+	if (!(index >= TRACK_LENGTH))
+	{
+		// Drawing the ghost note
+		uint8_t next_note = find_next_valid_note(index);
+
+		for (uint8_t lane=0; lane<4; lane++)
+		{	
+			if (next_note)
+			{
+				if (track[next_note] & (1<<lane))
+				{
+					ledmatrix_update_pixel(0, 2*lane, COLOUR_HALF_RED);
+					ledmatrix_update_pixel(0, 2*lane+1, COLOUR_HALF_RED);
+				}
+			}
+		}
+	}
+	
 	// draw the new notes
 	for (uint8_t col=0; col<MATRIX_NUM_COLUMNS; col++)
 	{
@@ -190,9 +214,10 @@ void advance_note(void)
 		{
 			continue;
 		}
+
 		// iterate over the four paths
 		for (uint8_t lane=0; lane<4; lane++)
-		{
+		{	
 			// check if there's a note in the specific path
 			if (track[index] & (1<<lane))
 			{
@@ -218,5 +243,18 @@ uint8_t is_game_over(void)
 {
 	// YOUR CODE HERE
 	// Detect if the game is over i.e. if a player has won.
+	return 0;
+}
+
+// Returns the index of next valid note, 0 otherwise.
+uint8_t find_next_valid_note(uint8_t index)
+{
+	for (uint8_t next_note = index+1; next_note < TRACK_LENGTH; next_note++)
+	{
+		if (track[next_note] & 0x0F)
+		{
+			return next_note;
+		}
+	}
 	return 0;
 }
