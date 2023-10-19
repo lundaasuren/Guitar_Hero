@@ -29,5 +29,6 @@ void advance_note(void);
 uint8_t is_game_over(void);
 // Returns the index of next note
 uint8_t find_next_valid_note(uint8_t index);
-
+// prints the game score
+void print_game_score(uint16_t score);
 #endif

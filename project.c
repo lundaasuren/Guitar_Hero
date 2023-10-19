@@ -12,6 +12,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <stdbool.h>
 
 #define F_CPU 8000000UL
 #include <util/delay.h>
@@ -35,6 +36,7 @@ void play_game(void);
 void handle_game_over(void);
 
 uint16_t game_speed;
+bool manual_mode = false;
 
 /////////////////////////////// main //////////////////////////////////
 int main(void)
@@ -102,6 +104,7 @@ void start_screen(void)
 	// change this to your name and student number; remove the chevrons <>
 	printf_P(PSTR("CSSE2010/7201 A2 by LUNDAASUREN MUNKHBAT - 47668599"));
 	
+	
 	// Output the static start screen and wait for a push button 
 	// to be pushed or a serial input of 's'
 	show_start_screen();
@@ -129,6 +132,23 @@ void start_screen(void)
 		{
 			break;
 		}
+		// If the serial input is 'm', then turn on the manual mode
+		if (serial_input == 'm' || serial_input == 'M')
+		{
+			if (manual_mode)
+			{
+				manual_mode = false;
+				move_terminal_cursor(10,15);
+				printf_P(PSTR("Manual mode: OFF"));
+			}
+			else
+			{
+				manual_mode = true;
+				move_terminal_cursor(10,15);
+				printf_P(PSTR("Manual mode: ON "));
+			}
+		}
+		
 		// Next check for any button presses
 		int8_t btn = button_pushed();
 		if (btn != NO_BUTTON_PUSHED)
@@ -152,7 +172,7 @@ void new_game(void)
 	// Clear the serial terminal
 	clear_terminal();
 	
-	// Initialise the game and display
+	// Initialize the game and display
 	initialise_game();
 	
 	// Clear a button push or serial input if any are waiting
@@ -163,6 +183,7 @@ void new_game(void)
 
 void play_game(void)
 {
+	print_game_score(0);
 	
 	uint32_t last_advance_time, current_time;
 	int8_t btn; // The button pushed
@@ -177,7 +198,24 @@ void play_game(void)
 		{
 			serial_input = fgetc(stdin);
 		}
-				
+
+		// If the serial input is 'm', then turn on the manual mode
+		if (serial_input == 'm' || serial_input == 'M')
+		{
+			if (manual_mode)
+			{
+				manual_mode = false;
+				move_terminal_cursor(10,5);
+				printf_P(PSTR("Manual mode: OFF"));
+			}
+			else
+			{
+				manual_mode = true;
+				move_terminal_cursor(10,5);
+				printf_P(PSTR("Manual mode: ON "));
+			}
+		}
+		
 		// We need to check if any button has been pushed, this will be
 		// NO_BUTTON_PUSHED if no button has been pushed
 		// Checkout the function comment in `buttons.h` and the implementation
@@ -206,15 +244,27 @@ void play_game(void)
 		}
 		
 		current_time = get_current_time();
-		if (current_time >= last_advance_time + game_speed/5)
+		if (manual_mode)
 		{
-			// 200ms (0.2 second) has passed since the last time we advance the
-			// notes here, so update the advance the notes
-			advance_note();
-			
-			// Update the most recent time the notes were advance
-			last_advance_time = current_time;
+			if (serial_input == 'n' || serial_input == 'N')
+			{
+				advance_note();
+				last_advance_time = current_time;
+			}
 		}
+		else
+		{
+			if (current_time >= last_advance_time + game_speed/5)
+			{
+				// 200ms (0.2 second) has passed since the last time we advance the
+				// notes here, so update the advance the notes
+				advance_note();
+				
+				// Update the most recent time the notes were advance
+				last_advance_time = current_time;
+			}
+		}
+		
 	}
 	// We get here if the game is over.
 }
