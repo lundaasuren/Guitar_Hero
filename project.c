@@ -199,7 +199,129 @@ void start_screen(void)
 	}
 	
 	// Implement the game CountDown over here!
+	uint32_t start_time;
+	ledmatrix_clear();
+	// Drawing 3
+	ledmatrix_update_pixel(5, 1, COLOUR_RED);
+	ledmatrix_update_pixel(5, 2, COLOUR_RED);
+	ledmatrix_update_pixel(4, 2, COLOUR_RED);
+	ledmatrix_update_pixel(4, 3, COLOUR_RED);
+	ledmatrix_update_pixel(4, 4, COLOUR_RED);
+	ledmatrix_update_pixel(4, 5, COLOUR_RED);
+	ledmatrix_update_pixel(5, 5, COLOUR_RED);
+	ledmatrix_update_pixel(5, 6, COLOUR_RED);
+	ledmatrix_update_pixel(6, 5, COLOUR_RED);
+	ledmatrix_update_pixel(6, 6, COLOUR_RED);
+	ledmatrix_update_pixel(7, 2, COLOUR_RED);
+	ledmatrix_update_pixel(7, 3, COLOUR_RED);
+	ledmatrix_update_pixel(7, 4, COLOUR_RED);
+	ledmatrix_update_pixel(8, 5, COLOUR_RED);
+	ledmatrix_update_pixel(8, 6, COLOUR_RED);
+	ledmatrix_update_pixel(9, 2, COLOUR_RED);
+	ledmatrix_update_pixel(9, 1, COLOUR_RED);
+	ledmatrix_update_pixel(9, 5, COLOUR_RED);
+	ledmatrix_update_pixel(9, 6, COLOUR_RED);
+	ledmatrix_update_pixel(10, 2, COLOUR_RED);
+	ledmatrix_update_pixel(10, 3, COLOUR_RED);
+	ledmatrix_update_pixel(10, 4, COLOUR_RED);
+	ledmatrix_update_pixel(10, 5, COLOUR_RED);
 	
+	start_time = get_current_time();
+	while (get_current_time() < start_time + game_speed)
+	{
+		;
+	}
+
+	ledmatrix_clear();
+	// Drawing 2
+	ledmatrix_update_pixel(4, 2, COLOUR_RED);
+	ledmatrix_update_pixel(4, 3, COLOUR_RED);
+	ledmatrix_update_pixel(4, 4, COLOUR_RED);
+	ledmatrix_update_pixel(4, 5, COLOUR_RED);
+	ledmatrix_update_pixel(5, 1, COLOUR_RED);
+	ledmatrix_update_pixel(5, 2, COLOUR_RED);
+	ledmatrix_update_pixel(5, 5, COLOUR_RED);
+	ledmatrix_update_pixel(5, 6, COLOUR_RED);
+	ledmatrix_update_pixel(6, 5, COLOUR_RED);
+	ledmatrix_update_pixel(6, 6, COLOUR_RED);
+	ledmatrix_update_pixel(7, 2, COLOUR_RED);
+	ledmatrix_update_pixel(7, 3, COLOUR_RED);
+	ledmatrix_update_pixel(7, 4, COLOUR_RED);
+	ledmatrix_update_pixel(8, 2, COLOUR_RED);
+	ledmatrix_update_pixel(8, 3, COLOUR_RED);
+	ledmatrix_update_pixel(9, 1, COLOUR_RED);
+	ledmatrix_update_pixel(9, 2, COLOUR_RED);
+	ledmatrix_update_pixel(10, 1, COLOUR_RED);
+	ledmatrix_update_pixel(10, 2, COLOUR_RED);
+	ledmatrix_update_pixel(10, 3, COLOUR_RED);
+	ledmatrix_update_pixel(10, 4, COLOUR_RED);
+	ledmatrix_update_pixel(10, 5, COLOUR_RED);
+	ledmatrix_update_pixel(10, 6, COLOUR_RED);
+	
+	start_time = get_current_time();
+	while (get_current_time() < start_time + game_speed)
+	{
+		;
+	}
+
+	ledmatrix_clear();
+	// Drawing 1
+	ledmatrix_update_pixel(4, 3, COLOUR_RED);
+	ledmatrix_update_pixel(4, 4, COLOUR_RED);
+	ledmatrix_update_pixel(5, 2, COLOUR_RED);
+	ledmatrix_update_pixel(5, 3, COLOUR_RED);
+	ledmatrix_update_pixel(5, 4, COLOUR_RED);
+	ledmatrix_update_pixel(6, 3, COLOUR_RED);
+	ledmatrix_update_pixel(6, 4, COLOUR_RED);
+	ledmatrix_update_pixel(7, 3, COLOUR_RED);
+	ledmatrix_update_pixel(7, 4, COLOUR_RED);
+	ledmatrix_update_pixel(8, 3, COLOUR_RED);
+	ledmatrix_update_pixel(8, 4, COLOUR_RED);
+	ledmatrix_update_pixel(9, 3, COLOUR_RED);
+	ledmatrix_update_pixel(9, 4, COLOUR_RED);
+	ledmatrix_update_pixel(10, 3, COLOUR_RED);
+	ledmatrix_update_pixel(10, 4, COLOUR_RED);
+	ledmatrix_update_pixel(10, 5, COLOUR_RED);
+	ledmatrix_update_pixel(10, 2, COLOUR_RED);
+	
+	start_time = get_current_time();
+	while (get_current_time() < start_time + game_speed)
+	{
+		;
+	}
+
+	ledmatrix_clear();
+	// Drawing GO
+	ledmatrix_update_pixel(5, 2, COLOUR_RED);
+	ledmatrix_update_pixel(5, 1, COLOUR_RED);
+	ledmatrix_update_pixel(5, 5, COLOUR_RED);
+	ledmatrix_update_pixel(5, 6, COLOUR_RED);
+	ledmatrix_update_pixel(5, 7, COLOUR_RED);
+	ledmatrix_update_pixel(6, 0, COLOUR_RED);
+	ledmatrix_update_pixel(6, 5, COLOUR_RED);
+	ledmatrix_update_pixel(6, 7, COLOUR_RED);
+	ledmatrix_update_pixel(7, 0, COLOUR_RED);
+	ledmatrix_update_pixel(7, 2, COLOUR_RED);
+	ledmatrix_update_pixel(7, 5, COLOUR_RED);
+	ledmatrix_update_pixel(7, 7, COLOUR_RED);
+	ledmatrix_update_pixel(8, 0, COLOUR_RED);
+	ledmatrix_update_pixel(8, 2, COLOUR_RED);
+	ledmatrix_update_pixel(8, 5, COLOUR_RED);
+	ledmatrix_update_pixel(8, 7, COLOUR_RED);
+	ledmatrix_update_pixel(9, 2, COLOUR_RED);
+	ledmatrix_update_pixel(9, 1, COLOUR_RED);
+	ledmatrix_update_pixel(9, 5, COLOUR_RED);
+	ledmatrix_update_pixel(9, 6, COLOUR_RED);
+	ledmatrix_update_pixel(9, 7, COLOUR_RED);
+
+	start_time = get_current_time();
+	while (get_current_time() < start_time + game_speed)
+	{
+		;
+	}
+
+	ledmatrix_clear();
+
 }
 
 void new_game(void)
@@ -220,7 +342,7 @@ void play_game(void)
 {
 	print_game_score(0);
 	
-	move_terminal_cursor(10,6);
+	move_terminal_cursor(10,16);
 	if (game_speed == 1000)
 	{
 		printf_P(PSTR("Game Speed: Normal"));
@@ -254,13 +376,13 @@ void play_game(void)
 			if (manual_mode)
 			{
 				manual_mode = false;
-				move_terminal_cursor(10,5);
+				move_terminal_cursor(10,15);
 				printf_P(PSTR("Manual mode: OFF"));
 			}
 			else
 			{
 				manual_mode = true;
-				move_terminal_cursor(10,5);
+				move_terminal_cursor(10,15);
 				printf_P(PSTR("Manual mode: ON "));
 			}
 		}
@@ -328,6 +450,21 @@ void handle_game_over()
 	move_terminal_cursor(10,14);
 	printf_P(PSTR("GAME OVER"));
 	move_terminal_cursor(10,15);
+	printf("Final Score: %d", game_score);
+	move_terminal_cursor(10,16);
+	if (game_speed == 1000)
+	{
+		printf_P(PSTR("Game Speed: Normal"));
+	}
+	else if (game_speed == 500)
+	{
+		printf_P(PSTR("Game Speed: Fast"));
+	}
+	else if (game_speed == 250)
+	{
+		printf_P(PSTR("Game Speed: Extreme"));
+	}
+	move_terminal_cursor(10,18);
 	printf_P(PSTR("Press a button or 's'/'S' to start a new game"));
 	
 	// Do nothing until a button is pushed. Hint: 's'/'S' should also start a

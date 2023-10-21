@@ -44,7 +44,7 @@ void initialise_game(void)
 {
 	// initialise the display we are using.
 	default_grid();
-	beat = 0;
+	beat = 500;
 	game_score = 0;
 }
 
@@ -281,6 +281,6 @@ uint8_t find_next_valid_note(uint8_t index)
 
 void print_game_score(int score)
 {
-	move_terminal_cursor(10, 4);
+	move_terminal_cursor(10, 14);
 	printf("Game Score: %4d", score);
 }

@@ -16,6 +16,7 @@
 #include <stdbool.h>
 
 #define TRACK_LENGTH 129
+int16_t game_score;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);
