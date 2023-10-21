@@ -37,6 +37,7 @@ void handle_game_over(void);
 
 uint16_t game_speed = 1000;
 bool manual_mode = false;
+bool game_over = false;
 
 /////////////////////////////// main //////////////////////////////////
 int main(void)
@@ -198,7 +199,7 @@ void start_screen(void)
 		}
 	}
 	// Implement seven segment display here!
-	uint8_t seven_seg[11] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111, 128};
+	//uint8_t seven_seg[11] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111, 128};
 	
 	// Implement the game CountDown over here!
 	uint32_t start_time;
@@ -442,6 +443,7 @@ void play_game(void)
 	// We get here if the game is over.
 	if (is_game_over())
 	{
+		game_over = true;
 		handle_game_over();
 	}
 }
@@ -481,7 +483,24 @@ void handle_game_over()
 		// If the serial input is 's', then exit the start screen
 		if (serial_input == 's' || serial_input == 'S')
 		{
-			break;
+			game_over = false;
+			start_screen();
 		}
+		
+		if(!game_over && (serial_input == 's' || serial_input == 'S'))
+		{
+			new_game();
+			play_game();
+		}
+		
+	}
+	
+	game_over = false;
+	start_screen();
+	
+	if(!game_over)
+	{
+		new_game();
+		play_game();
 	}
 }
