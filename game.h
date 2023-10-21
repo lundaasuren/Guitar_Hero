@@ -13,8 +13,12 @@
 #define GAME_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define TRACK_LENGTH 129
+
+bool game_over;
+int game_score;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);
@@ -29,6 +33,6 @@ void advance_note(void);
 uint8_t is_game_over(void);
 // Returns the index of next note
 uint8_t find_next_valid_note(uint8_t index);
-// prints the game score
-void print_game_score(uint16_t score);
+
+void print_game_score(int score);
 #endif

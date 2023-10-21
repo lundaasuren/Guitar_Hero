@@ -35,10 +35,10 @@ static const uint8_t track[TRACK_LENGTH] = {0x00,
 	
 static bool green_note[TRACK_LENGTH];
 static bool red_note[TRACK_LENGTH];
-bool red_slid_off_note = false;
+
 
 uint16_t beat;
-uint16_t game_score = 0;
+int game_score = 0;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void)
@@ -81,102 +81,41 @@ void play_note(uint8_t lane)
 		{
 			continue;
 		}
-
-// For keeping track of the score
-		uint16_t score_arr[5] = {1, 2, 3, 2, 1};
-
+		
 		// check if there's a note in the specific path
 		if (track[index] & (1<<lane))
 		{
-			if (col == 11)
+			if (col == 11 || col == 15)
 			{
-				if (green_note[index])
-				{
-					game_score -= 1;
-					print_game_score(game_score);
-				}
-				else
-				{
-					green_note[index] = true;
-					game_score += score_arr[col - 11];
-					print_game_score(game_score);
-				}
+				green_note[index] = true;
+				game_score++;
+				print_game_score(game_score);
 				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
 			}
-			else if (col == 12)
+			else if (col == 12 || col == 14)
 			{
-				if (green_note[index])
-				{
-					game_score -= 1;
-					print_game_score(game_score);
-				}
-				else
-				{
-					green_note[index] = true;
-					game_score += score_arr[col - 11];
-					print_game_score(game_score);
-				}
+				green_note[index] = true;
+				game_score += 2;
+				print_game_score(game_score);
 				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
 			}
 			else if (col == 13)
 			{
-				if (green_note[index])
-				{
-					game_score -= 1;
-					print_game_score(game_score);
-				}
-				else
-				{
-					green_note[index] = true;
-					game_score += score_arr[col - 11];
-					print_game_score(game_score);
-				}
-				
-				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
-				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
-			}
-			else if (col == 14)
-			{
-				if (green_note[index])
-				{
-					game_score -= 1;
-					print_game_score(game_score);
-				}
-				else
-				{
-					green_note[index] = true;
-					game_score += score_arr[col - 11];
-					print_game_score(game_score);
-				}
-				
-				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
-				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
-			}
-			else if (col == 15)
-			{
-				if (green_note[index])
-				{
-					game_score -= 1;
-					print_game_score(game_score);
-				}
-				else
-				{
-					green_note[index] = true;
-					game_score += score_arr[col - 11];
-					print_game_score(game_score);
-				}
-	
+				green_note[index] = true;
+				game_score += 3;
+				print_game_score(game_score);
+
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
 			}
 		}
 		else
 		{
-			game_score -= 1;
+			game_score--;
 			print_game_score(game_score);
 		}
 	}
@@ -303,8 +242,17 @@ void advance_note(void)
 		{
 			if (red_note[index])
 			{
-				game_score  -= 1;
+				game_score--;
 				print_game_score(game_score);
+			}
+			
+			if (index == TRACK_LENGTH - 1)
+			{
+				game_over = true;
+			}
+			else
+			{
+				game_over = false;
 			}
 		}
 	}
@@ -315,6 +263,10 @@ uint8_t is_game_over(void)
 {
 	// YOUR CODE HERE
 	// Detect if the game is over i.e. if a player has won.
+	if (game_over)
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -331,8 +283,8 @@ uint8_t find_next_valid_note(uint8_t index)
 	return 0;
 }
 
-void print_game_score(uint16_t score)
+void print_game_score(int score)
 {
-	move_terminal_cursor(10,4);
+	move_terminal_cursor(10, 4);
 	printf("Game Score: %4d", score);
 }

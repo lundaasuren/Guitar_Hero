@@ -169,6 +169,7 @@ void start_screen(void)
 
 void new_game(void)
 {
+	game_score = 0;
 	// Clear the serial terminal
 	clear_terminal();
 	
@@ -184,7 +185,7 @@ void new_game(void)
 void play_game(void)
 {
 	print_game_score(0);
-	
+
 	uint32_t last_advance_time, current_time;
 	int8_t btn; // The button pushed
 	
@@ -267,10 +268,15 @@ void play_game(void)
 		
 	}
 	// We get here if the game is over.
+	if (is_game_over())
+	{
+		handle_game_over();
+	}
 }
 
 void handle_game_over()
 {
+	clear_terminal();
 	move_terminal_cursor(10,14);
 	printf_P(PSTR("GAME OVER"));
 	move_terminal_cursor(10,15);
@@ -280,6 +286,33 @@ void handle_game_over()
 	// new game
 	while (button_pushed() == NO_BUTTON_PUSHED)
 	{
-		; // wait
+		char serial_input = -1;
+		if (serial_input_available())
+		{
+			serial_input = fgetc(stdin);
+		}
+		// If the serial input is 's', then exit the start screen
+		if (serial_input == 's' || serial_input == 'S')
+		{
+			start_screen();
+			game_over = false;
+		}
+		
+		if(!game_over && (serial_input == 's' || serial_input == 'S'))
+		{
+			new_game();
+			play_game();
+		}
+	}
+	
+	// if button is pushed, return to splash screen.
+	start_screen();
+	game_over = false;
+	
+	// if button is pushed again, start the game.
+	if (!game_over)
+	{
+		new_game();
+		play_game();
 	}
 }
