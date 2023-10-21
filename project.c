@@ -4,7 +4,7 @@
  * Main file
  *
  * Authors: Peter Sutton, Luke Kamols, Jarrod Bennett, Cody Burnett
- * Modified by <YOUR NAME HERE>
+ * Modified by Lundaasuren Munkhbat
  */
 
 #include <stdio.h>
@@ -35,7 +35,7 @@ void new_game(void);
 void play_game(void);
 void handle_game_over(void);
 
-uint16_t game_speed;
+uint16_t game_speed = 1000;
 bool manual_mode = false;
 
 /////////////////////////////// main //////////////////////////////////
@@ -47,11 +47,11 @@ int main(void)
 	
 	// Show the splash screen message. Returns when display
 	// is complete.
-	start_screen();
 	
 	// Loop forever and continuously play the game.
 	while(1)
 	{
+		start_screen();
 		new_game();
 		play_game();
 		handle_game_over();
@@ -103,7 +103,20 @@ void start_screen(void)
 	move_terminal_cursor(10,14);
 	// change this to your name and student number; remove the chevrons <>
 	printf_P(PSTR("CSSE2010/7201 A2 by LUNDAASUREN MUNKHBAT - 47668599"));
-	
+	// Displaying game speed
+	move_terminal_cursor(10,16);
+	if (game_speed == 1000)
+	{
+		printf_P(PSTR("Game Speed: Normal"));
+	}
+	else if (game_speed == 500)
+	{
+		printf_P(PSTR("Game Speed: Fast"));
+	}
+	else if (game_speed == 250)
+	{
+		printf_P(PSTR("Game Speed: Extreme"));
+	}
 	
 	// Output the static start screen and wait for a push button 
 	// to be pushed or a serial input of 's'
@@ -113,7 +126,7 @@ void start_screen(void)
 	last_screen_update = get_current_time();
 	
 	uint8_t frame_number = 0;
-	game_speed = 1000;
+	
 
 	// Wait until a button is pressed, or 's' is pressed on the terminal
 	while(1)
@@ -149,6 +162,25 @@ void start_screen(void)
 			}
 		}
 		
+		if (serial_input == '1' || serial_input == '!')
+		{
+			game_speed = 1000;
+			move_terminal_cursor(10,16);
+			printf_P(PSTR("Game Speed: Normal "));
+		}
+		if (serial_input == '2' || serial_input == '@')
+		{
+			game_speed = 500;
+			move_terminal_cursor(10,16);
+			printf_P(PSTR("Game Speed: Fast   "));
+		}
+		if (serial_input == '3' || serial_input == '#')
+		{
+			game_speed = 250;
+			move_terminal_cursor(10,16);
+			printf_P(PSTR("Game Speed: Extreme"));
+		}
+		
 		// Next check for any button presses
 		int8_t btn = button_pushed();
 		if (btn != NO_BUTTON_PUSHED)
@@ -165,11 +197,13 @@ void start_screen(void)
 			last_screen_update = current_time;
 		}
 	}
+	
+	// Implement the game CountDown over here!
+	
 }
 
 void new_game(void)
 {
-	game_score = 0;
 	// Clear the serial terminal
 	clear_terminal();
 	
@@ -185,6 +219,20 @@ void new_game(void)
 void play_game(void)
 {
 	print_game_score(0);
+	
+	move_terminal_cursor(10,6);
+	if (game_speed == 1000)
+	{
+		printf_P(PSTR("Game Speed: Normal"));
+	}
+	else if (game_speed == 500)
+	{
+		printf_P(PSTR("Game Speed: Fast"));
+	}
+	else if (game_speed == 250)
+	{
+		printf_P(PSTR("Game Speed: Extreme"));
+	}
 
 	uint32_t last_advance_time, current_time;
 	int8_t btn; // The button pushed
@@ -294,25 +342,7 @@ void handle_game_over()
 		// If the serial input is 's', then exit the start screen
 		if (serial_input == 's' || serial_input == 'S')
 		{
-			start_screen();
-			game_over = false;
+			break;
 		}
-		
-		if(!game_over && (serial_input == 's' || serial_input == 'S'))
-		{
-			new_game();
-			play_game();
-		}
-	}
-	
-	// if button is pushed, return to splash screen.
-	start_screen();
-	game_over = false;
-	
-	// if button is pushed again, start the game.
-	if (!game_over)
-	{
-		new_game();
-		play_game();
 	}
 }

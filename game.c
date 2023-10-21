@@ -33,12 +33,11 @@ static const uint8_t track[TRACK_LENGTH] = {0x00,
 	0x04, 0x40, 0x08, 0x04, 0x40, 0x40, 0x02, 0x20,
 	0x01, 0x10, 0x10, 0x10, 0x00, 0x00, 0x00, 0x00};
 	
-static bool green_note[TRACK_LENGTH];
-static bool red_note[TRACK_LENGTH];
+static bool green_note;
 
 
 uint16_t beat;
-int game_score = 0;
+int16_t game_score;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void)
@@ -46,11 +45,13 @@ void initialise_game(void)
 	// initialise the display we are using.
 	default_grid();
 	beat = 0;
+	game_score = 0;
 }
 
 // Play a note in the given lane
 void play_note(uint8_t lane)
 {
+	uint8_t missednote = true;
 	// YOUR CODE HERE
 	// possible steps:
 	// a) check if there is a note in the scoring area of the given lane -
@@ -85,9 +86,19 @@ void play_note(uint8_t lane)
 		// check if there's a note in the specific path
 		if (track[index] & (1<<lane))
 		{
-			if (col == 11 || col == 15)
+			if (col >= 11)
 			{
-				green_note[index] = true;
+				missednote = false;
+			}
+			
+			if (green_note && col >= 11)
+			{
+				game_score--;
+				print_game_score(game_score);
+			}
+			else if (col == 11 || col == 15)
+			{
+				green_note = true;
 				game_score++;
 				print_game_score(game_score);
 				
@@ -96,7 +107,7 @@ void play_note(uint8_t lane)
 			}
 			else if (col == 12 || col == 14)
 			{
-				green_note[index] = true;
+				green_note = true;
 				game_score += 2;
 				print_game_score(game_score);
 				
@@ -105,7 +116,7 @@ void play_note(uint8_t lane)
 			}
 			else if (col == 13)
 			{
-				green_note[index] = true;
+				green_note = true;
 				game_score += 3;
 				print_game_score(game_score);
 
@@ -113,11 +124,11 @@ void play_note(uint8_t lane)
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
 			}
 		}
-		else
-		{
-			game_score--;
-			print_game_score(game_score);
-		}
+	}
+	if (missednote)
+	{
+		game_score--;
+		print_game_score(game_score);
 	}
 }
 
@@ -141,6 +152,15 @@ void advance_note(void)
 		{
 			if (track[index] & (1<<lane))
 			{
+				if (col == 15)
+				{
+					if (!green_note)
+					{
+						game_score--;
+						print_game_score(game_score);
+					}
+					green_note = 0;
+				}
 				PixelColour colour;
 				// yellows in the scoring area
 				if (col==11 || col == 15)
@@ -222,37 +242,17 @@ void advance_note(void)
 			if (track[index] & (1<<lane))
 			{
 				PixelColour colour;
-				if (green_note[index])
+				if (green_note && col>=11)
 				{
 					colour = COLOUR_GREEN;
 				}
 				else
 				{
-					red_note[index] = true;
 					colour = COLOUR_RED;
 				}
 				// if so, colour the two pixels red
 				ledmatrix_update_pixel(col, 2*lane, colour);
 				ledmatrix_update_pixel(col, 2*lane+1, colour);
-			}
-		}
-		
-		// detecting slid off unplayed note
-		if (col == MATRIX_NUM_COLUMNS -1)
-		{
-			if (red_note[index])
-			{
-				game_score--;
-				print_game_score(game_score);
-			}
-			
-			if (index == TRACK_LENGTH - 1)
-			{
-				game_over = true;
-			}
-			else
-			{
-				game_over = false;
 			}
 		}
 	}
@@ -263,11 +263,7 @@ uint8_t is_game_over(void)
 {
 	// YOUR CODE HERE
 	// Detect if the game is over i.e. if a player has won.
-	if (game_over)
-	{
-		return 1;
-	}
-	return 0;
+	return beat >= 5*TRACK_LENGTH-30;
 }
 
 // Returns the index of next valid note, 0 otherwise.

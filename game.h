@@ -17,9 +17,6 @@
 
 #define TRACK_LENGTH 129
 
-bool game_over;
-int game_score;
-
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);
 
