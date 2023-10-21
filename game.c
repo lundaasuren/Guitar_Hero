@@ -44,7 +44,7 @@ void initialise_game(void)
 {
 	// initialise the display we are using.
 	default_grid();
-	beat = 500;
+	beat = 0;
 	game_score = 0;
 }
 

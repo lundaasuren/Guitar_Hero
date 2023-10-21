@@ -197,6 +197,8 @@ void start_screen(void)
 			last_screen_update = current_time;
 		}
 	}
+	// Implement seven segment display here!
+	uint8_t seven_seg[11] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111, 128};
 	
 	// Implement the game CountDown over here!
 	uint32_t start_time;
