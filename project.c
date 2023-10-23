@@ -38,6 +38,9 @@ void handle_game_over(void);
 uint16_t game_speed = 1000;
 bool manual_mode = false;
 bool game_over = false;
+int game_paused = 0;
+uint32_t paused_duration = 0;
+uint32_t paused_start = 0;
 
 
 /* digits_displayed - 1 if digits are displayed on the seven
@@ -61,7 +64,7 @@ int main(void)
 	** bit of port A be output bits.
 	*/
 	DDRC = 0xFF;
-	DDRA = 0x01;
+	DDRA |= (1 << PINA0) | (1 << PINA1);
 	
 	// Setup hardware and call backs. This will turn on 
 	// interrupts.
@@ -394,6 +397,7 @@ void new_game(void)
 
 void play_game(void)
 {
+	
 	print_game_score(0);
 	
 	move_terminal_cursor(10,18);
@@ -423,6 +427,27 @@ void play_game(void)
 		{
 			serial_input = fgetc(stdin);
 		}
+		
+		if (serial_input == 'p' || serial_input == 'P')
+		{
+			if (game_paused)
+			{
+				paused_duration = get_current_time() - paused_start;
+				last_advance_time += paused_duration;
+				(void)button_pushed();
+				game_paused = 0;
+				move_terminal_cursor(10, 12);
+				clear_to_end_of_line();
+			}
+			else
+			{
+				paused_start = get_current_time();
+				game_paused = 1;
+				move_terminal_cursor(10, 12);
+				printf("GAME PAUSED");
+			}
+		}
+		
 
 		// If the serial input is 'm', then turn on the manual mode
 		if (serial_input == 'm' || serial_input == 'M')
@@ -441,52 +466,55 @@ void play_game(void)
 			}
 		}
 		
-		// We need to check if any button has been pushed, this will be
-		// NO_BUTTON_PUSHED if no button has been pushed
-		// Checkout the function comment in `buttons.h` and the implementation
-		// in `buttons.c`.
-		btn = button_pushed();
-		
-		if (btn == BUTTON0_PUSHED || (serial_input == 'f' || serial_input == 'F'))
+		if (!game_paused)
 		{
-			// If button 0 play the lowest note (right lane)
-			play_note(3);
-		}
-		else if (btn == BUTTON1_PUSHED || (serial_input == 'd' || serial_input == 'D'))
-		{
-			// If button 1 play the second lowest note (right lane)
-			play_note(2);
-		}
-		else if (btn == BUTTON2_PUSHED || (serial_input == 's' || serial_input == 'S'))
-		{
-			// If button 2 play the second lowest note (left lane)
-			play_note(1);
-		}
-		else if (btn == BUTTON3_PUSHED || (serial_input == 'a' || serial_input == 'A'))
-		{
-			// If button 3 play the lowest note (left lane)
-			play_note(0);
-		}
-		
-		current_time = get_current_time();
-		if (manual_mode)
-		{
-			if (serial_input == 'n' || serial_input == 'N')
+			// We need to check if any button has been pushed, this will be
+			// NO_BUTTON_PUSHED if no button has been pushed
+			// Checkout the function comment in `buttons.h` and the implementation
+			// in `buttons.c`.
+			btn = button_pushed();
+					
+			if (btn == BUTTON0_PUSHED || (serial_input == 'f' || serial_input == 'F'))
 			{
-				advance_note();
-				last_advance_time = current_time;
+				// If button 0 play the lowest note (right lane)
+				play_note(3);
 			}
-		}
-		else
-		{
-			if (current_time >= last_advance_time + game_speed/5)
+			else if (btn == BUTTON1_PUSHED || (serial_input == 'd' || serial_input == 'D'))
 			{
-				// 200ms (0.2 second) has passed since the last time we advance the
-				// notes here, so update the advance the notes
-				advance_note();
-				
-				// Update the most recent time the notes were advance
-				last_advance_time = current_time;
+				// If button 1 play the second lowest note (right lane)
+				play_note(2);
+			}
+			else if (btn == BUTTON2_PUSHED || (serial_input == 's' || serial_input == 'S'))
+			{
+				// If button 2 play the second lowest note (left lane)
+				play_note(1);
+			}
+			else if (btn == BUTTON3_PUSHED || (serial_input == 'a' || serial_input == 'A'))
+			{
+				// If button 3 play the lowest note (left lane)
+				play_note(0);
+			}
+					
+			current_time = get_current_time();
+			if (manual_mode)
+			{
+				if (serial_input == 'n' || serial_input == 'N')
+				{
+					advance_note();
+					last_advance_time = current_time;
+				}
+			}
+			else
+			{
+				if (current_time >= last_advance_time + game_speed/5)
+				{
+					// 200ms (0.2 second) has passed since the last time we advance the
+					// notes here, so update the advance the notes
+					advance_note();
+							
+					// Update the most recent time the notes were advance
+					last_advance_time = current_time;// + paused_duration;
+				}
 			}
 		}
 		
@@ -587,7 +615,7 @@ ISR(TIMER2_COMPA_vect) {
 			{
 				PORTC = seven_seg_data[game_score];
 			}
-			else if (game_score > 10)
+			else if (game_score >= 10)
 			{
 				PORTC = seven_seg_data[(game_score%100)%10];
 			}
@@ -607,13 +635,24 @@ ISR(TIMER2_COMPA_vect) {
 			{
 				PORTC = 0;
 			}
-			else if (game_score > 10)
+			else if (game_score >= 10)
 			{
-				PORTC = seven_seg_data[(game_score%100)/10];
+				int indx = floor((game_score%100)/10);
+				PORTC = seven_seg_data[indx];
 			}
 		}
 		/* Output the digit selection (CC) bit */
-		PORTA = seven_seg_cc;	
+		PORTA = (seven_seg_cc << PINA0);
+
+		if (game_paused)
+		{
+			PORTA |= (1 << PINA1);
+		}
+		else
+		{
+			PORTA &= 0b11111101;
+		}
+		
 	} else {
 		/* No digits displayed -  display is blank */
 		PORTC = 0;
