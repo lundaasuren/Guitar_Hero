@@ -19,6 +19,7 @@ typedef uint8_t PixelColour;
 #define COLOUR_HALF_RED	    (0x01)
 #define COLOUR_GREEN		(0xF0)
 #define COLOUR_ORANGE		(0x3C)
+#define COLOUR_DARK_ORANGE  (0x1F)
 #define COLOUR_HALF_YELLOW  (0x55)
 #define COLOUR_QUART_YELLOW (0x11)
 #define COLOUR_YELLOW       (0xFF)

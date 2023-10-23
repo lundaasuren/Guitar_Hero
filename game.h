@@ -17,6 +17,7 @@
 
 #define TRACK_LENGTH 129
 int16_t game_score;
+uint8_t combo_score;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);

@@ -64,7 +64,7 @@ int main(void)
 	** bit of port A be output bits.
 	*/
 	DDRC = 0xFF;
-	DDRA |= (1 << PINA0) | (1 << PINA1);
+	DDRA |= (1 << PINA0) | (1 << PINA1) | (1 << PINA2) | (1 << PINA3) | (1 << PINA4);
 	
 	// Setup hardware and call backs. This will turn on 
 	// interrupts.
@@ -234,6 +234,10 @@ void new_game(void)
 	
 	print_game_score(0);
 	
+	//Printing combo score
+	move_terminal_cursor(10, 22);
+	printf("COMBO SCORE: %d", combo_score);
+	
 	digits_displayed = 1;
 	
 	if (manual_mode)
@@ -400,6 +404,10 @@ void play_game(void)
 	
 	print_game_score(0);
 	
+	//Printing combo score
+	move_terminal_cursor(10, 22);
+	printf("COMBO SCORE: %d", combo_score);
+	
 	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{
@@ -422,6 +430,49 @@ void play_game(void)
 	// We play the game until it's over
 	while (!is_game_over())
 	{
+		if (combo_score >= 3)
+		{
+			move_terminal_cursor(10, 24);
+			printf_P(PSTR("  ______                           __                  __ "));
+			move_terminal_cursor(10,25);
+			printf_P(PSTR(" /      \\                         |  \\                |  \\"));
+			move_terminal_cursor(10,26);
+			printf_P(PSTR("|  $$$$$$\\  ______   ______ ____  | $$____    ______  | $$"));
+			move_terminal_cursor(10,27);
+			printf_P(PSTR("| $$   \\$$ /      \\ |      \\    \\ | $$    \\  /      \\ | $$"));
+			move_terminal_cursor(10,28);
+			printf_P(PSTR("| $$      |  $$$$$$\\| $$$$$$\\$$$$\\| $$$$$$$\\|  $$$$$$\\| $$"));
+			move_terminal_cursor(10,29);
+			printf_P(PSTR("| $$   __ | $$  | $$| $$ | $$ | $$| $$  | $$| $$  | $$ \\$$"));
+			move_terminal_cursor(10,30);
+			printf_P(PSTR("| $$__/  \\| $$__/ $$| $$ | $$ | $$| $$__/ $$| $$__/ $$ __ "));
+			move_terminal_cursor(10,31);
+			printf_P(PSTR(" \\$$    $$ \\$$    $$| $$ | $$ | $$| $$    $$ \\$$    $$|  \\"));
+			move_terminal_cursor(10,32);
+			printf_P(PSTR("  \\$$$$$$   \\$$$$$$  \\$$  \\$$  \\$$ \\$$$$$$$   \\$$$$$$  \\$$"));
+		}
+		else
+		{
+			move_terminal_cursor(10, 24);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 25);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 26);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 27);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 28);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 29);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 30);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 31);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 32);
+			clear_to_end_of_line();
+		}
+		
 		char serial_input = -1;
 		if (serial_input_available())
 		{
@@ -436,14 +487,14 @@ void play_game(void)
 				last_advance_time += paused_duration;
 				(void)button_pushed();
 				game_paused = 0;
-				move_terminal_cursor(10, 12);
+				move_terminal_cursor(10, 20);
 				clear_to_end_of_line();
 			}
 			else
 			{
 				paused_start = get_current_time();
 				game_paused = 1;
-				move_terminal_cursor(10, 12);
+				move_terminal_cursor(10, 20);
 				printf("GAME PAUSED");
 			}
 		}
@@ -643,7 +694,8 @@ ISR(TIMER2_COMPA_vect) {
 		}
 		/* Output the digit selection (CC) bit */
 		PORTA = (seven_seg_cc << PINA0);
-
+		
+		// Configuring LED7 for game pause
 		if (game_paused)
 		{
 			PORTA |= (1 << PINA1);
@@ -651,6 +703,24 @@ ISR(TIMER2_COMPA_vect) {
 		else
 		{
 			PORTA &= 0b11111101;
+		}
+		
+		// Configuring LED 0, 1, 2 for combo score
+		if (combo_score == 1)
+		{
+			PORTA |= (1 << PINA2);
+		}
+		else if (combo_score == 2)
+		{
+			PORTA |= (1 << PINA2) | (1 << PINA3);
+		}
+		else if (combo_score >= 3)
+		{
+			PORTA |= (1 << PINA2) | (1 << PINA3) | (1 << PINA4);
+		}
+		else
+		{
+			PORTA &= 0b11100011;
 		}
 		
 	} else {

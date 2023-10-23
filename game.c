@@ -46,6 +46,7 @@ void initialise_game(void)
 	default_grid();
 	beat = 0;
 	game_score = 0;
+	combo_score = 0;
 }
 
 // Play a note in the given lane
@@ -95,12 +96,20 @@ void play_note(uint8_t lane)
 			{
 				game_score--;
 				print_game_score(game_score);
+				
+				//Printing combo score
+				move_terminal_cursor(10, 22);
+				printf("COMBO SCORE: %d", combo_score);
 			}
 			else if (col == 11 || col == 15)
 			{
 				green_note = true;
 				game_score++;
 				print_game_score(game_score);
+				
+				//Printing combo score
+				move_terminal_cursor(10, 22);
+				printf("COMBO SCORE: %d", combo_score);
 				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
@@ -111,14 +120,30 @@ void play_note(uint8_t lane)
 				game_score += 2;
 				print_game_score(game_score);
 				
+				//Printing combo score
+				move_terminal_cursor(10, 22);
+				printf("COMBO SCORE: %d", combo_score);
+				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
 			}
 			else if (col == 13)
 			{
+				combo_score++;
 				green_note = true;
-				game_score += 3;
+				if (combo_score > 3)
+				{
+					game_score += 4;
+				}
+				else
+				{
+					game_score += 3;
+				}
 				print_game_score(game_score);
+				
+				//Printing combo score
+				move_terminal_cursor(10, 22);
+				printf("COMBO SCORE: %d", combo_score);
 
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
@@ -127,8 +152,13 @@ void play_note(uint8_t lane)
 	}
 	if (missednote)
 	{
+		combo_score = 0;
 		game_score--;
 		print_game_score(game_score);
+		
+		//Printing combo score
+		move_terminal_cursor(10, 22);
+		printf("COMBO SCORE: %d", combo_score);
 	}
 }
 
@@ -156,8 +186,13 @@ void advance_note(void)
 				{
 					if (!green_note)
 					{
+						combo_score = 0;
 						game_score--;
 						print_game_score(game_score);
+						
+						//Printing combo score
+						move_terminal_cursor(10, 22);
+						printf("COMBO SCORE: %d", combo_score);
 					}
 					green_note = 0;
 				}
@@ -208,8 +243,17 @@ void advance_note(void)
 			{
 				if (track[next_note] & (1<<lane))
 				{
-					ledmatrix_update_pixel(0, 2*lane, COLOUR_HALF_RED);
-					ledmatrix_update_pixel(0, 2*lane+1, COLOUR_HALF_RED);
+					PixelColour color;
+					if (combo_score >= 3)
+					{
+						color = COLOUR_DARK_ORANGE;
+					}
+					else
+					{
+						color = COLOUR_HALF_RED;
+					}
+					ledmatrix_update_pixel(0, 2*lane, color);
+					ledmatrix_update_pixel(0, 2*lane+1, color);
 				}
 			}
 		}
@@ -248,7 +292,14 @@ void advance_note(void)
 				}
 				else
 				{
-					colour = COLOUR_RED;
+					if (combo_score >= 3)
+					{
+						colour = COLOUR_ORANGE;
+					}
+					else
+					{
+						colour = COLOUR_RED;
+					}
 				}
 				// if so, colour the two pixels red
 				ledmatrix_update_pixel(col, 2*lane, colour);
