@@ -39,9 +39,30 @@ uint16_t game_speed = 1000;
 bool manual_mode = false;
 bool game_over = false;
 
+
+/* digits_displayed - 1 if digits are displayed on the seven
+** segment display, 0 if not. No digits displayed initially.
+*/
+volatile uint8_t digits_displayed = 0;
+
+
+/* Seven segment display digit being displayed.
+** 0 = right digit; 1 = left digit.
+*/
+volatile uint8_t seven_seg_cc = 0;
+
+/* Seven segment display segment values for 0 to 9 and - */
+uint8_t seven_seg_data[10] = {63,6,91,79,102,109,125,7,127,111};
+
 /////////////////////////////// main //////////////////////////////////
 int main(void)
 {
+	/* Make all bits of port C and the least significant
+	** bit of port A be output bits.
+	*/
+	DDRC = 0xFF;
+	DDRA = 0x01;
+	
 	// Setup hardware and call backs. This will turn on 
 	// interrupts.
 	initialise_hardware();
@@ -53,6 +74,9 @@ int main(void)
 	while(1)
 	{
 		start_screen();
+		
+		// Implement controller here for the SSD
+		
 		new_game();
 		play_game();
 		handle_game_over();
@@ -105,7 +129,7 @@ void start_screen(void)
 	// change this to your name and student number; remove the chevrons <>
 	printf_P(PSTR("CSSE2010/7201 A2 by LUNDAASUREN MUNKHBAT - 47668599"));
 	// Displaying game speed
-	move_terminal_cursor(10,16);
+	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{
 		printf_P(PSTR("Game Speed: Normal"));
@@ -152,13 +176,13 @@ void start_screen(void)
 			if (manual_mode)
 			{
 				manual_mode = false;
-				move_terminal_cursor(10,15);
+				move_terminal_cursor(10,16);
 				printf_P(PSTR("Manual mode: OFF"));
 			}
 			else
 			{
 				manual_mode = true;
-				move_terminal_cursor(10,15);
+				move_terminal_cursor(10,16);
 				printf_P(PSTR("Manual mode: ON "));
 			}
 		}
@@ -166,19 +190,19 @@ void start_screen(void)
 		if (serial_input == '1' || serial_input == '!')
 		{
 			game_speed = 1000;
-			move_terminal_cursor(10,16);
+			move_terminal_cursor(10,18);
 			printf_P(PSTR("Game Speed: Normal "));
 		}
 		if (serial_input == '2' || serial_input == '@')
 		{
 			game_speed = 500;
-			move_terminal_cursor(10,16);
+			move_terminal_cursor(10,18);
 			printf_P(PSTR("Game Speed: Fast   "));
 		}
 		if (serial_input == '3' || serial_input == '#')
 		{
 			game_speed = 250;
-			move_terminal_cursor(10,16);
+			move_terminal_cursor(10,18);
 			printf_P(PSTR("Game Speed: Extreme"));
 		}
 		
@@ -198,8 +222,41 @@ void start_screen(void)
 			last_screen_update = current_time;
 		}
 	}
-	// Implement seven segment display here!
-	//uint8_t seven_seg[11] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111, 128};
+}
+
+void new_game(void)
+{
+	// Clear the serial terminal
+	clear_terminal();
+	
+	print_game_score(0);
+	
+	digits_displayed = 1;
+	
+	if (manual_mode)
+	{
+		move_terminal_cursor(10,16);
+		printf_P(PSTR("Manual mode: ON"));
+	}
+	else
+	{
+		move_terminal_cursor(10,16);
+		printf_P(PSTR("Manual mode: OFF"));
+	}
+	
+	move_terminal_cursor(10,18);
+	if (game_speed == 1000)
+	{
+		printf_P(PSTR("Game Speed: Normal"));
+	}
+	else if (game_speed == 500)
+	{
+		printf_P(PSTR("Game Speed: Fast"));
+	}
+	else if (game_speed == 250)
+	{
+		printf_P(PSTR("Game Speed: Extreme"));
+	}
 	
 	// Implement the game CountDown over here!
 	uint32_t start_time;
@@ -295,27 +352,27 @@ void start_screen(void)
 
 	ledmatrix_clear();
 	// Drawing GO
-	ledmatrix_update_pixel(5, 2, COLOUR_RED);
-	ledmatrix_update_pixel(5, 1, COLOUR_RED);
-	ledmatrix_update_pixel(5, 5, COLOUR_RED);
-	ledmatrix_update_pixel(5, 6, COLOUR_RED);
-	ledmatrix_update_pixel(5, 7, COLOUR_RED);
-	ledmatrix_update_pixel(6, 0, COLOUR_RED);
-	ledmatrix_update_pixel(6, 5, COLOUR_RED);
-	ledmatrix_update_pixel(6, 7, COLOUR_RED);
-	ledmatrix_update_pixel(7, 0, COLOUR_RED);
-	ledmatrix_update_pixel(7, 2, COLOUR_RED);
-	ledmatrix_update_pixel(7, 5, COLOUR_RED);
-	ledmatrix_update_pixel(7, 7, COLOUR_RED);
-	ledmatrix_update_pixel(8, 0, COLOUR_RED);
-	ledmatrix_update_pixel(8, 2, COLOUR_RED);
-	ledmatrix_update_pixel(8, 5, COLOUR_RED);
-	ledmatrix_update_pixel(8, 7, COLOUR_RED);
-	ledmatrix_update_pixel(9, 2, COLOUR_RED);
-	ledmatrix_update_pixel(9, 1, COLOUR_RED);
-	ledmatrix_update_pixel(9, 5, COLOUR_RED);
-	ledmatrix_update_pixel(9, 6, COLOUR_RED);
-	ledmatrix_update_pixel(9, 7, COLOUR_RED);
+	ledmatrix_update_pixel(5, 2, COLOUR_GREEN);
+	ledmatrix_update_pixel(5, 1, COLOUR_GREEN);
+	ledmatrix_update_pixel(5, 5, COLOUR_GREEN);
+	ledmatrix_update_pixel(5, 6, COLOUR_GREEN);
+	ledmatrix_update_pixel(5, 7, COLOUR_GREEN);
+	ledmatrix_update_pixel(6, 0, COLOUR_GREEN);
+	ledmatrix_update_pixel(6, 5, COLOUR_GREEN);
+	ledmatrix_update_pixel(6, 7, COLOUR_GREEN);
+	ledmatrix_update_pixel(7, 0, COLOUR_GREEN);
+	ledmatrix_update_pixel(7, 2, COLOUR_GREEN);
+	ledmatrix_update_pixel(7, 5, COLOUR_GREEN);
+	ledmatrix_update_pixel(7, 7, COLOUR_GREEN);
+	ledmatrix_update_pixel(8, 0, COLOUR_GREEN);
+	ledmatrix_update_pixel(8, 2, COLOUR_GREEN);
+	ledmatrix_update_pixel(8, 5, COLOUR_GREEN);
+	ledmatrix_update_pixel(8, 7, COLOUR_GREEN);
+	ledmatrix_update_pixel(9, 2, COLOUR_GREEN);
+	ledmatrix_update_pixel(9, 1, COLOUR_GREEN);
+	ledmatrix_update_pixel(9, 5, COLOUR_GREEN);
+	ledmatrix_update_pixel(9, 6, COLOUR_GREEN);
+	ledmatrix_update_pixel(9, 7, COLOUR_GREEN);
 
 	start_time = get_current_time();
 	while (get_current_time() < start_time + game_speed)
@@ -325,12 +382,6 @@ void start_screen(void)
 
 	ledmatrix_clear();
 
-}
-
-void new_game(void)
-{
-	// Clear the serial terminal
-	clear_terminal();
 	
 	// Initialize the game and display
 	initialise_game();
@@ -345,7 +396,7 @@ void play_game(void)
 {
 	print_game_score(0);
 	
-	move_terminal_cursor(10,16);
+	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{
 		printf_P(PSTR("Game Speed: Normal"));
@@ -379,13 +430,13 @@ void play_game(void)
 			if (manual_mode)
 			{
 				manual_mode = false;
-				move_terminal_cursor(10,15);
+				move_terminal_cursor(10,16);
 				printf_P(PSTR("Manual mode: OFF"));
 			}
 			else
 			{
 				manual_mode = true;
-				move_terminal_cursor(10,15);
+				move_terminal_cursor(10,16);
 				printf_P(PSTR("Manual mode: ON "));
 			}
 		}
@@ -453,9 +504,9 @@ void handle_game_over()
 	clear_terminal();
 	move_terminal_cursor(10,14);
 	printf_P(PSTR("GAME OVER"));
-	move_terminal_cursor(10,15);
-	printf("Final Score: %d", game_score);
 	move_terminal_cursor(10,16);
+	printf("Final Score: %d", game_score);
+	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{
 		printf_P(PSTR("Game Speed: Normal"));
@@ -468,7 +519,7 @@ void handle_game_over()
 	{
 		printf_P(PSTR("Game Speed: Extreme"));
 	}
-	move_terminal_cursor(10,18);
+	move_terminal_cursor(10,20);
 	printf_P(PSTR("Press a button or 's'/'S' to start a new game"));
 	
 	// Do nothing until a button is pushed. Hint: 's'/'S' should also start a
@@ -502,5 +553,69 @@ void handle_game_over()
 	{
 		new_game();
 		play_game();
+	}
+}
+
+/* This interrupt handler will get called every 10ms.
+** We do two things - update out stopwatch count, and
+** output to the other seven segment display digit. 
+** We display seconds on the left digit; 
+** tenths of seconds on the right digit.
+*/
+ISR(TIMER2_COMPA_vect) {
+
+	
+	/* Change which digit will be displayed. If last time was
+	** left, now display right. If last time was right, now 
+	** display left.
+	*/
+	seven_seg_cc = 1 ^ seven_seg_cc;
+	
+	if(digits_displayed) {
+		/* Display rightmost digit - tenths of seconds */
+		if(seven_seg_cc == 0) 
+		{
+			if (game_score < -9)
+			{
+				PORTC = 0b01000000;
+			}
+			else if ((-9 <= game_score) && (game_score < 0)) 
+			{
+				PORTC = seven_seg_data[-1 * game_score];
+			}
+			else if ((0 <= game_score) && ( game_score < 10))
+			{
+				PORTC = seven_seg_data[game_score];
+			}
+			else if (game_score > 10)
+			{
+				PORTC = seven_seg_data[(game_score%100)%10];
+			}
+		} 
+		/* Display leftmost digit - tenths of seconds */
+		else 
+		{
+			if (game_score < -9)
+			{
+				PORTC = 0b01000000;
+			}
+			else if ((-9 <= game_score) && (game_score < 0))
+			{
+				PORTC = 0b01000000;
+			}
+			else if ((0 <= game_score) && ( game_score < 10))
+			{
+				PORTC = 0;
+			}
+			else if (game_score > 10)
+			{
+				PORTC = seven_seg_data[(game_score%100)/10];
+			}
+		}
+		/* Output the digit selection (CC) bit */
+		PORTA = seven_seg_cc;	
+	} else {
+		/* No digits displayed -  display is blank */
+		PORTC = 0;
 	}
 }
