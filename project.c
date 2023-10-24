@@ -42,6 +42,16 @@ int game_paused = 0;
 uint32_t paused_duration = 0;
 uint32_t paused_start = 0;
 
+const char *ASCII_ART_COMBO[10] = {"  ______                           __                  __ ",
+									" /      \\                         |  \\                |  \\",
+									"|  $$$$$$\\  ______   ______ ____  | $$____    ______  | $$",
+									"| $$   \\$$ /      \\ |      \\    \\ | $$    \\  /      \\ | $$",
+									"| $$      |  $$$$$$\\| $$$$$$\\$$$$\\| $$$$$$$\\|  $$$$$$\\| $$",
+									"| $$   __ | $$  | $$| $$ | $$ | $$| $$  | $$| $$  | $$ \\$$",
+									"| $$__/  \\| $$__/ $$| $$ | $$ | $$| $$__/ $$| $$__/ $$ __ ",
+									" \\$$    $$ \\$$    $$| $$ | $$ | $$| $$    $$ \\$$    $$|  \\",
+									"  \\$$$$$$   \\$$$$$$  \\$$  \\$$  \\$$ \\$$$$$$$   \\$$$$$$  \\$$",
+									""};
 
 /* digits_displayed - 1 if digits are displayed on the seven
 ** segment display, 0 if not. No digits displayed initially.
@@ -236,7 +246,7 @@ void new_game(void)
 	
 	//Printing combo score
 	move_terminal_cursor(10, 22);
-	printf("COMBO SCORE: %d", combo_score);
+	printf("COMBO SCORE: %2d", combo_score);
 	
 	digits_displayed = 1;
 	
@@ -406,7 +416,7 @@ void play_game(void)
 	
 	//Printing combo score
 	move_terminal_cursor(10, 22);
-	printf("COMBO SCORE: %d", combo_score);
+	printf("COMBO SCORE: %2d", combo_score);
 	
 	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
@@ -427,32 +437,25 @@ void play_game(void)
 	
 	last_advance_time = get_current_time();
 	
+	int  counter = -1;
+	
+	
 	// We play the game until it's over
 	while (!is_game_over())
 	{
+		
 		if (combo_score >= 3)
 		{
-			move_terminal_cursor(10, 24);
-			printf_P(PSTR("  ______                           __                  __ "));
-			move_terminal_cursor(10,25);
-			printf_P(PSTR(" /      \\                         |  \\                |  \\"));
-			move_terminal_cursor(10,26);
-			printf_P(PSTR("|  $$$$$$\\  ______   ______ ____  | $$____    ______  | $$"));
-			move_terminal_cursor(10,27);
-			printf_P(PSTR("| $$   \\$$ /      \\ |      \\    \\ | $$    \\  /      \\ | $$"));
-			move_terminal_cursor(10,28);
-			printf_P(PSTR("| $$      |  $$$$$$\\| $$$$$$\\$$$$\\| $$$$$$$\\|  $$$$$$\\| $$"));
-			move_terminal_cursor(10,29);
-			printf_P(PSTR("| $$   __ | $$  | $$| $$ | $$ | $$| $$  | $$| $$  | $$ \\$$"));
-			move_terminal_cursor(10,30);
-			printf_P(PSTR("| $$__/  \\| $$__/ $$| $$ | $$ | $$| $$__/ $$| $$__/ $$ __ "));
-			move_terminal_cursor(10,31);
-			printf_P(PSTR(" \\$$    $$ \\$$    $$| $$ | $$ | $$| $$    $$ \\$$    $$|  \\"));
-			move_terminal_cursor(10,32);
-			printf_P(PSTR("  \\$$$$$$   \\$$$$$$  \\$$  \\$$  \\$$ \\$$$$$$$   \\$$$$$$  \\$$"));
+			if (counter < 9)
+			{
+				counter++;
+				move_terminal_cursor(10,24 + counter);
+				printf(ASCII_ART_COMBO[counter]);
+			}
 		}
 		else
 		{
+			counter = -1;
 			move_terminal_cursor(10, 24);
 			clear_to_end_of_line();
 			move_terminal_cursor(10, 25);
@@ -584,7 +587,7 @@ void handle_game_over()
 	move_terminal_cursor(10,14);
 	printf_P(PSTR("GAME OVER"));
 	move_terminal_cursor(10,16);
-	printf("Final Score: %d", game_score);
+	printf("Final Score: %4d", game_score);
 	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{

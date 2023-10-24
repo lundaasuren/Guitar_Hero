@@ -99,7 +99,7 @@ void play_note(uint8_t lane)
 				
 				//Printing combo score
 				move_terminal_cursor(10, 22);
-				printf("COMBO SCORE: %d", combo_score);
+				printf("COMBO SCORE: %2d", combo_score);
 			}
 			else if (col == 11 || col == 15)
 			{
@@ -109,7 +109,7 @@ void play_note(uint8_t lane)
 				
 				//Printing combo score
 				move_terminal_cursor(10, 22);
-				printf("COMBO SCORE: %d", combo_score);
+				printf("COMBO SCORE: %2d", combo_score);
 				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
@@ -122,7 +122,7 @@ void play_note(uint8_t lane)
 				
 				//Printing combo score
 				move_terminal_cursor(10, 22);
-				printf("COMBO SCORE: %d", combo_score);
+				printf("COMBO SCORE: %2d", combo_score);
 				
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
@@ -143,7 +143,7 @@ void play_note(uint8_t lane)
 				
 				//Printing combo score
 				move_terminal_cursor(10, 22);
-				printf("COMBO SCORE: %d", combo_score);
+				printf("COMBO SCORE: %2d", combo_score);
 
 				ledmatrix_update_pixel(col, 2*lane, COLOUR_GREEN);
 				ledmatrix_update_pixel(col, 2*lane+1, COLOUR_GREEN);
@@ -158,7 +158,7 @@ void play_note(uint8_t lane)
 		
 		//Printing combo score
 		move_terminal_cursor(10, 22);
-		printf("COMBO SCORE: %d", combo_score);
+		printf("COMBO SCORE: %2d", combo_score);
 	}
 }
 
@@ -192,7 +192,7 @@ void advance_note(void)
 						
 						//Printing combo score
 						move_terminal_cursor(10, 22);
-						printf("COMBO SCORE: %d", combo_score);
+						printf("COMBO SCORE: %2d", combo_score);
 					}
 					green_note = 0;
 				}
