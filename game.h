@@ -18,6 +18,15 @@
 #define TRACK_LENGTH 129
 int16_t game_score;
 uint8_t combo_score;
+uint16_t freq;	// Hz
+float dutycycle;	// %
+uint16_t clockperiod;
+uint16_t pulsewidth;
+uint16_t beat_count;
+uint16_t beat;
+int16_t game_score;
+uint8_t turn_off_audio;
+uint8_t note_played;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);
@@ -34,4 +43,6 @@ uint8_t is_game_over(void);
 uint8_t find_next_valid_note(uint8_t index);
 
 void print_game_score(int score);
+
+int is_long_note_being_played(void);
 #endif

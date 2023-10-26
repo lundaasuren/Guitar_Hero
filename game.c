@@ -15,6 +15,7 @@
 #include "terminalio.h"
 #include <stdbool.h>
 
+
 static const uint8_t track[TRACK_LENGTH] = {0x00,
 	0x00, 0x00, 0x08, 0x08, 0x08, 0x80, 0x04, 0x02,
 	0x04, 0x40, 0x08, 0x80, 0x00, 0x00, 0x04, 0x02,
@@ -35,10 +36,6 @@ static const uint8_t track[TRACK_LENGTH] = {0x00,
 	
 static bool green_note;
 
-
-uint16_t beat;
-int16_t game_score;
-
 // Initialise the game by resetting the grid and beat
 void initialise_game(void)
 {
@@ -47,11 +44,13 @@ void initialise_game(void)
 	beat = 0;
 	game_score = 0;
 	combo_score = 0;
+	turn_off_audio = false;
 }
 
 // Play a note in the given lane
 void play_note(uint8_t lane)
 {
+	note_played = 0;
 	uint8_t missednote = true;
 	// YOUR CODE HERE
 	// possible steps:
@@ -87,6 +86,24 @@ void play_note(uint8_t lane)
 		// check if there's a note in the specific path
 		if (track[index] & (1<<lane))
 		{
+			// audio freq
+			if (lane == 0)
+			{
+				freq = 523.2511;
+			}
+			else if (lane == 1)
+			{
+				freq = 622.254;
+			}
+			else if (lane == 2)
+			{
+				freq = 698.4565;
+			}
+			else if (lane == 3)
+			{
+				freq = 783.9909;
+			}
+			
 			if (col >= 11)
 			{
 				missednote = false;
@@ -94,6 +111,9 @@ void play_note(uint8_t lane)
 			
 			if (green_note && col >= 11)
 			{
+				// turning OFF audio
+				turn_off_audio = true;
+				
 				game_score--;
 				print_game_score(game_score);
 				
@@ -103,6 +123,19 @@ void play_note(uint8_t lane)
 			}
 			else if (col == 11 || col == 15)
 			{
+				note_played = 1;
+				beat_count = beat;
+				
+				//audio duty cycle
+				if (col == 11)
+				{
+					dutycycle = 2;
+				}
+				else if (col == 15)
+				{
+					dutycycle = 98;
+				}
+				
 				green_note = true;
 				game_score++;
 				print_game_score(game_score);
@@ -116,6 +149,19 @@ void play_note(uint8_t lane)
 			}
 			else if (col == 12 || col == 14)
 			{
+				note_played = 1;
+				beat_count = beat;
+				
+				//audio duty cycle
+				if (col == 12)
+				{
+					dutycycle = 10;
+				}
+				else if (col == 14)
+				{
+					dutycycle = 90;
+				}
+				
 				green_note = true;
 				game_score += 2;
 				print_game_score(game_score);
@@ -129,6 +175,12 @@ void play_note(uint8_t lane)
 			}
 			else if (col == 13)
 			{
+				note_played = 1;
+				beat_count = beat;
+				
+				//audio duty cycle
+				dutycycle = 50;
+				
 				combo_score++;
 				green_note = true;
 				if (combo_score > 3)
@@ -152,6 +204,9 @@ void play_note(uint8_t lane)
 	}
 	if (missednote)
 	{
+		// turning OFF audio
+		turn_off_audio = true;
+		
 		combo_score = 0;
 		game_score--;
 		print_game_score(game_score);
@@ -186,6 +241,9 @@ void advance_note(void)
 				{
 					if (!green_note)
 					{
+						// turning OFF audio
+						turn_off_audio = true;
+						
 						combo_score = 0;
 						game_score--;
 						print_game_score(game_score);
@@ -196,6 +254,7 @@ void advance_note(void)
 					}
 					green_note = 0;
 				}
+				
 				PixelColour colour;
 				// yellows in the scoring area
 				if (col==11 || col == 15)
@@ -264,11 +323,6 @@ void advance_note(void)
 	{
 		// col counts from one end, future from the other
 		uint8_t future = MATRIX_NUM_COLUMNS-1-col;
-		// notes are only drawn every five columns
-		if ((future+beat)%5)
-		{
-			continue;
-		}
 		
 		// index of which note in the track to play
 		uint8_t index = (future+beat)/5;
@@ -278,14 +332,21 @@ void advance_note(void)
 		{
 			continue;
 		}
+		
+		// notes are only drawn every five columns
+		if ((future+beat)%5)
+		{
+			continue;
+		}
 
 		// iterate over the four paths
 		for (uint8_t lane=0; lane<4; lane++)
 		{	
 			// check if there's a note in the specific path
 			if (track[index] & (1<<lane))
-			{
+			{	
 				PixelColour colour;
+				
 				if (green_note && col>=11)
 				{
 					colour = COLOUR_GREEN;

@@ -66,6 +66,37 @@ volatile uint8_t seven_seg_cc = 0;
 
 /* Seven segment display segment values for 0 to 9 and - */
 uint8_t seven_seg_data[10] = {63,6,91,79,102,109,125,7,127,111};
+	
+
+// For a given frequency (Hz), return the clock period (in terms of the
+// number of clock cycles of a 1MHz clock)
+uint16_t freq_to_clock_period(uint16_t freq) {
+	return (1000000UL / freq);	// UL makes the constant an unsigned long (32 bits)
+	// and ensures we do 32 bit arithmetic, not 16
+}
+
+// Return the width of a pulse (in clock cycles) given a duty cycle (%) and
+// the period of the clock (measured in clock cycles)
+uint16_t duty_cycle_to_pulse_width(float dutycycle, uint16_t clockperiod) {
+	return (dutycycle * clockperiod) / 100;
+}
+
+void update_audio_time()
+{
+	clockperiod = freq_to_clock_period(freq);
+	pulsewidth = duty_cycle_to_pulse_width(dutycycle, clockperiod);
+
+	// Set the maximum count value for timer/counter 1 to be one less than the clockperiod
+	OCR1A = clockperiod - 1;
+
+	// Set the count compare value based on the pulse width. The value will be 1 less
+	// than the pulse width - unless the pulse width is 0.
+	if(pulsewidth == 0) {
+		OCR1B = 0;
+		} else {
+		OCR1B = pulsewidth - 1;
+	}
+}
 
 /////////////////////////////// main //////////////////////////////////
 int main(void)
@@ -75,10 +106,25 @@ int main(void)
 	*/
 	DDRC = 0xFF;
 	DDRA |= (1 << PINA0) | (1 << PINA1) | (1 << PINA2) | (1 << PINA3) | (1 << PINA4);
+	DDRD = (1 << PIND4);
 	
 	// Setup hardware and call backs. This will turn on 
 	// interrupts.
 	initialise_hardware();
+
+	clockperiod = freq_to_clock_period(freq);
+	pulsewidth = duty_cycle_to_pulse_width(dutycycle, clockperiod);
+
+	// Set the maximum count value for timer/counter 1 to be one less than the clockperiod
+	OCR1A = clockperiod - 1;
+
+	// Set the count compare value based on the pulse width. The value will be 1 less
+	// than the pulse width - unless the pulse width is 0.
+	if(pulsewidth == 0) {
+		OCR1B = 0;
+		} else {
+		OCR1B = pulsewidth - 1;
+	}
 	
 	// Show the splash screen message. Returns when display
 	// is complete.
@@ -155,6 +201,8 @@ void start_screen(void)
 	{
 		printf_P(PSTR("Game Speed: Extreme"));
 	}
+	
+	digits_displayed = 0;
 	
 	// Output the static start screen and wait for a push button 
 	// to be pushed or a serial input of 's'
@@ -241,7 +289,7 @@ void new_game(void)
 {
 	// Clear the serial terminal
 	clear_terminal();
-	
+	game_score = 0;
 	print_game_score(0);
 	
 	//Printing combo score
@@ -411,6 +459,7 @@ void new_game(void)
 
 void play_game(void)
 {
+	update_audio_time();
 	
 	print_game_score(0);
 	
@@ -492,6 +541,23 @@ void play_game(void)
 				game_paused = 0;
 				move_terminal_cursor(10, 20);
 				clear_to_end_of_line();
+				
+				if ((beat - beat_count) != 5)
+				{
+					if(note_played)
+					{
+						// turning ON audio
+						update_audio_time();
+						PORTD |= (1 << PIND4);
+					}
+					note_played = 0;
+				}
+				else
+				{
+					// turning OFF audio
+					OCR1B = 0;
+					PORTD &= ~(1 << PIND4);
+				}
 			}
 			else
 			{
@@ -499,6 +565,10 @@ void play_game(void)
 				game_paused = 1;
 				move_terminal_cursor(10, 20);
 				printf("GAME PAUSED");
+				
+				// turning OFF audio
+				OCR1B = 0;
+				PORTD &= ~(1 << PIND4);
 			}
 		}
 		
@@ -527,39 +597,77 @@ void play_game(void)
 			// Checkout the function comment in `buttons.h` and the implementation
 			// in `buttons.c`.
 			btn = button_pushed();
-					
+			
 			if (btn == BUTTON0_PUSHED || (serial_input == 'f' || serial_input == 'F'))
 			{
 				// If button 0 play the lowest note (right lane)
 				play_note(3);
+				// turning ON audio
+				update_audio_time();
+				PORTD |= (1 << PIND4);
 			}
 			else if (btn == BUTTON1_PUSHED || (serial_input == 'd' || serial_input == 'D'))
 			{
 				// If button 1 play the second lowest note (right lane)
 				play_note(2);
+				// turning ON audio
+				update_audio_time();
+				PORTD |= (1 << PIND4);
 			}
 			else if (btn == BUTTON2_PUSHED || (serial_input == 's' || serial_input == 'S'))
 			{
 				// If button 2 play the second lowest note (left lane)
 				play_note(1);
+				// turning ON audio
+				update_audio_time();
+				PORTD |= (1 << PIND4);
 			}
 			else if (btn == BUTTON3_PUSHED || (serial_input == 'a' || serial_input == 'A'))
 			{
 				// If button 3 play the lowest note (left lane)
 				play_note(0);
+				// turning ON audio
+				update_audio_time();
+				PORTD |= (1 << PIND4);
 			}
-					
+			
+			if (turn_off_audio)
+			{
+				// turning OFF audio
+				OCR1B = 0;
+				PORTD &= ~(1 << PIND4);
+			}
+			turn_off_audio = false;
+			
+			if ((beat - beat_count) == 5)
+			{
+				// turning OFF audio
+				OCR1B = 0;
+				PORTD &= ~(1 << PIND4);
+			}
+			
+			int n_pressed = 0;	
 			current_time = get_current_time();
 			if (manual_mode)
 			{
 				if (serial_input == 'n' || serial_input == 'N')
 				{
 					advance_note();
+					n_pressed++;
+					if (n_pressed == 5)
+					{
+						// turning OFF audio
+						OCR1B = 0;
+						PORTD &= ~(1 << PIND4);
+						
+						n_pressed = 0;
+					}
 					last_advance_time = current_time;
 				}
 			}
 			else
 			{
+				n_pressed = 0;
 				if (current_time >= last_advance_time + game_speed/5)
 				{
 					// 200ms (0.2 second) has passed since the last time we advance the
