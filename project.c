@@ -160,6 +160,8 @@ void initialise_hardware(void)
 
 void start_screen(void)
 {
+	track_choice = 0;
+	
 	// Clear terminal screen and output a message
 	clear_terminal();
 	show_cursor();
@@ -201,6 +203,9 @@ void start_screen(void)
 	{
 		printf_P(PSTR("Game Speed: Extreme"));
 	}
+	
+	move_terminal_cursor(10,20);
+	printf_P(PSTR("Selected Track: Through the Fire and Flames"));
 	
 	digits_displayed = 0;
 	
@@ -245,6 +250,41 @@ void start_screen(void)
 				manual_mode = true;
 				move_terminal_cursor(10,16);
 				printf_P(PSTR("Manual mode: ON "));
+			}
+		}
+		
+		// Selecting track
+		if (serial_input == 't' || serial_input == 'T')
+		{
+			if (track_choice < 2)
+			{
+				track_choice++;
+				move_terminal_cursor(10,20);
+				if (track_choice == 0)
+				{
+					clear_to_end_of_line();
+					printf_P(PSTR("Selected Track: Through the Fire and Flames"));
+				}
+				else if (track_choice == 1)
+				{
+					clear_to_end_of_line();
+					printf_P(PSTR("Selected Track: Twinkle Twinkle Little Star"));
+				}
+				else if (track_choice == 2)
+				{
+					clear_to_end_of_line();
+					printf_P(PSTR("Selected Track: Jingle Bells"));
+				}
+			}
+			else
+			{
+				track_choice = 0;
+				move_terminal_cursor(10,20);
+				if (track_choice == 0)
+				{
+					clear_to_end_of_line();
+					printf_P(PSTR("Selected Track: Through the Fire and Flames"));
+				}
 			}
 		}
 		
@@ -295,6 +335,23 @@ void new_game(void)
 	//Printing combo score
 	move_terminal_cursor(10, 22);
 	printf("COMBO SCORE: %2d", combo_score);
+	
+	move_terminal_cursor(10,24);
+	if (track_choice == 0)
+	{
+		clear_to_end_of_line();
+		printf_P(PSTR("Selected Track: Through the Fire and Flames"));
+	}
+	else if (track_choice == 1)
+	{
+		clear_to_end_of_line();
+		printf_P(PSTR("Selected Track: Twinkle Twinkle Little Star"));
+	}
+	else if (track_choice == 2)
+	{
+		clear_to_end_of_line();
+		printf_P(PSTR("Selected Track: Jingle Bells"));
+	}
 	
 	digits_displayed = 1;
 	
@@ -467,6 +524,20 @@ void play_game(void)
 	move_terminal_cursor(10, 22);
 	printf("COMBO SCORE: %2d", combo_score);
 	
+	move_terminal_cursor(10,24);
+	if (track_choice == 0)
+	{
+		printf_P(PSTR("Selected Track: Through the Fire and Flames"));
+	}
+	else if (track_choice == 1)
+	{
+		printf_P(PSTR("Selected Track: Twinkle Twinkle Little Star"));
+	}
+	else if (track_choice == 2)
+	{
+		printf_P(PSTR("Selected Track: Jingle Bells"));
+	}
+	
 	move_terminal_cursor(10,18);
 	if (game_speed == 1000)
 	{
@@ -492,23 +563,18 @@ void play_game(void)
 	// We play the game until it's over
 	while (!is_game_over())
 	{
-		
 		if (combo_score >= 3)
 		{
 			if (counter < 9)
 			{
 				counter++;
-				move_terminal_cursor(10,24 + counter);
+				move_terminal_cursor(10,26 + counter);
 				printf(ASCII_ART_COMBO[counter]);
 			}
 		}
 		else
 		{
 			counter = -1;
-			move_terminal_cursor(10, 24);
-			clear_to_end_of_line();
-			move_terminal_cursor(10, 25);
-			clear_to_end_of_line();
 			move_terminal_cursor(10, 26);
 			clear_to_end_of_line();
 			move_terminal_cursor(10, 27);
@@ -522,6 +588,10 @@ void play_game(void)
 			move_terminal_cursor(10, 31);
 			clear_to_end_of_line();
 			move_terminal_cursor(10, 32);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 33);
+			clear_to_end_of_line();
+			move_terminal_cursor(10, 34);
 			clear_to_end_of_line();
 		}
 		
@@ -709,7 +779,22 @@ void handle_game_over()
 	{
 		printf_P(PSTR("Game Speed: Extreme"));
 	}
+	
 	move_terminal_cursor(10,20);
+	if (track_choice == 0)
+	{
+		printf_P(PSTR("Selected Track: Through the Fire and Flames"));
+	}
+	else if (track_choice == 1)
+	{
+		printf_P(PSTR("Selected Track: Twinkle Twinkle Little Star"));
+	}
+	else if (track_choice == 2)
+	{
+		printf_P(PSTR("Selected Track: Jingle Bells"));
+	}
+	
+	move_terminal_cursor(10,22);
 	printf_P(PSTR("Press a button or 's'/'S' to start a new game"));
 	
 	// Do nothing until a button is pushed. Hint: 's'/'S' should also start a

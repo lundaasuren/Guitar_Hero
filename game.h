@@ -27,6 +27,7 @@ uint16_t beat;
 int16_t game_score;
 uint8_t turn_off_audio;
 uint8_t note_played;
+uint8_t track_choice;
 
 // Initialise the game by resetting the grid and beat
 void initialise_game(void);
